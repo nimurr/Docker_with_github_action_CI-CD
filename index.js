@@ -1,4 +1,3 @@
-// index.js
 import app from "./serve.js";
 
 const port = 3000;
