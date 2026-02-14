@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/v1", (req, res) => {
-  res.send("Hello World v1!");
+  res.send("Hello World v2!");
 });
 
 export default app;

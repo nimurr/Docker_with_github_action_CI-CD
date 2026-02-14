@@ -1,5 +1,5 @@
-// install docker compose
-// $ docker compose version
+//================= install docker compose ======================
+// $ docker compose veServer is running 🚀rsion
 // $ docker compose --version
 
 // create docker compose file
