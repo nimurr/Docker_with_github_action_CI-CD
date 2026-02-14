@@ -15,13 +15,12 @@ app.use("/public", express.static("public"));
 // Routes
 // app.use("/api", routes);
 
-// Health check
-app.get("/", (req, res) => {
-  res.send("Server is running 🚀");
-});
+
+app.use("/", express.static("public"));
+
 
 app.get("/api/v1", (req, res) => {
-  res.send("Hello World v2!");
+    res.send("Server is running v1 `/api/v1` successfully!");
 });
 
 export default app;
