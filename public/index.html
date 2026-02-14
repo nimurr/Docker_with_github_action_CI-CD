@@ -68,8 +68,6 @@
 
 <body>
     <h1>🚀 Express Server Live!</h1>
-    <button onclick="callAPI()">Call API</button>
-    <p id="api-response">Click the button to see the API response</p>
 
     <br>
     <span>
@@ -85,7 +83,7 @@
             responseEl.innerText = 'Loading... ⏳';
 
             try {
-                const response = await fetch('/api/v1');
+                const response = await fetch('/api/v1/auth');
                 if (!response.ok) throw new Error('Network response was not ok');
                 const text = await response.text();
                 responseEl.innerText = text;
