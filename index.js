@@ -8,5 +8,5 @@ const port = 3000;
 
 // Bind to your cloud IP
 app.listen(port, myIp, () => {
-  console.log(`Server running at http://${myIp}:${port}`);
+  console.log(`Server running at my http://${myIp}:${port}`);
 });
