@@ -9,14 +9,10 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Static files
-app.use("/public", express.static("public"));
-
-// Routes
-// app.use("/api", routes);
-
-
 app.use("/", express.static("public"));
+
+//======== Routes =========
+// app.use("/api/v1", routes);
 
 
 app.get("/api/v1", (req, res) => {
