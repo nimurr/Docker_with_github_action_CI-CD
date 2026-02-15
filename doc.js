@@ -16,6 +16,6 @@
 // ========================= Run Docker Compose =========================
 // $ docker compose up --build
 
-// $ docker compose up --scale app=3 --build
+// $ docker compose up --scale app=5 --build
 // $ docker compose ps
 // $ docker compose logs

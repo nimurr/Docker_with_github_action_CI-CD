@@ -34,7 +34,7 @@ const config = {
   },
 
   // Redis configuration
-  redis_url: process.env.REDIS_URL || "redis://127.0.0.1:6379",
+  redisUrl: process.env.REDIS_URL || "redis://127.0.0.1:6379",
 
   // Cloudinary config (if needed later)
   cloudinary: {
