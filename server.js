@@ -11,10 +11,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1", logger, requestTracker, routes);
 
-app.use(express.static("public")); // ✅ Live View chart For Check
+app.use(express.static("public")); // ✅ Live View chart For Check Server Health
 
 app.use(requestTracker);
-
 
 app.get("/health", logger, async (req, res) => {
     const uptime = process.uptime();
@@ -44,7 +43,5 @@ app.get("/health", logger, async (req, res) => {
         }
     });
 });
-
-
 
 export default app;
