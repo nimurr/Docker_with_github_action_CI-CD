@@ -2,17 +2,19 @@ import express from "express";
 import routes from "./src/routes/index.js";
 import os from "os";
 import logger from "./src/utils/logers.js";
+import requestTracker, { requestTimestamps } from "./src/middleware/trackrequests.js";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/v1", routes);
-
-
+app.use("/api/v1", requestTracker, routes);
 
 app.use(express.static("public")); // ✅ correct way
+
+app.use(requestTracker);
+
 
 app.get("/health", logger, async (req, res) => {
     const uptime = process.uptime();
@@ -21,8 +23,11 @@ app.get("/health", logger, async (req, res) => {
     const totalMemory = os.totalmem();
     const freeMemory = os.freemem();
 
+    const requestsLast5Sec = requestTimestamps.length;
+
     res.status(200).json({
         status: "OK",
+        requestsLast5Seconds: requestsLast5Sec,   // 👈 ADD THIS
         uptime: `${Math.floor(uptime)} seconds`,
         timestamp: new Date(),
         system: {
@@ -39,6 +44,7 @@ app.get("/health", logger, async (req, res) => {
         }
     });
 });
+
 
 
 export default app;

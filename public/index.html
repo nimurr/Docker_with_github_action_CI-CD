@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -171,7 +171,6 @@
         </footer>
     </div>
 
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
@@ -179,7 +178,7 @@
         const memoryCtx = document.getElementById('memoryChart').getContext('2d');
         const heapCtx = document.getElementById('heapChart').getContext('2d');
 
-        const maxPoints = 30; // last 30 seconds
+        const maxPoints = 30;
         const labels = Array.from({ length: maxPoints }, (_, i) => i - maxPoints + 1);
 
         const cpuChart = new Chart(cpuCtx, {
@@ -209,7 +208,6 @@
                 const data = await res.json();
                 const end = performance.now();
 
-                // Update top status
                 statusEl.innerText = `✅ Server is Healthy | Response Time: ${(end - start).toFixed(2)} ms`;
                 statusEl.className = "status ok";
 
@@ -220,7 +218,6 @@
                 document.getElementById("heap").innerText = data.memory.heapUsed;
                 document.getElementById("memory").innerText = data.system.freeMemoryMB + " MB";
 
-                // Update charts
                 addData(cpuChart, parseFloat(data.system.cpuLoad[0].toFixed(2)));
                 addData(memoryChart, parseFloat(data.system.freeMemoryMB));
                 addData(heapChart, parseFloat(data.memory.heapUsed.replace(" MB", "")));
@@ -233,15 +230,289 @@
 
         function addData(chart, value) {
             chart.data.datasets[0].data.push(value);
-            chart.data.datasets[0].data.shift(); // remove oldest
+            chart.data.datasets[0].data.shift(); 
             chart.update('none');
         }
 
 
-        // Auto refresh every 1 minute (60,000 ms)
-        setInterval(loadHealth, 3000); // 1 minute
-        loadHealth(); // initial call
+        setInterval(loadHealth, 3000); 
+        loadHealth(); 
     </script>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Server Health Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            display: flex;
+            padding: 20px 0;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            border-radius: 20px;
+            width: 95%;
+            max-width: 1100px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .status.ok {
+            background: rgba(0, 255, 120, 0.2);
+            color: #00ff9d;
+        }
+
+        .status.error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff5c5c;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .charts {
+            margin-top: 30px;
+        }
+
+        canvas {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .refresh {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            color: white;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚀 Server Health Dashboard</h1>
+
+        <div id="status" class="status">Checking server...</div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>⏱ Uptime</h3>
+                <p id="uptime">-</p>
+            </div>
+
+            <div class="card">
+                <h3>🕒 Current Time</h3>
+                <p id="timestamp">-</p>
+            </div>
+
+            <div class="card">
+                <h3>💻 Platform</h3>
+                <p id="platform">-</p>
+            </div>
+
+            <div class="card">
+                <h3>🧠 CPU Cores</h3>
+                <p id="cpu">-</p>
+            </div>
+
+            <div class="card">
+                <h3>📦 Heap Used</h3>
+                <p id="heap">-</p>
+            </div>
+
+            <div class="card">
+                <h3>💾 Free Memory</h3>
+                <p id="memory">-</p>
+            </div>
+
+            <div class="card">
+                <h3>📊 Requests (Last 5s)</h3>
+                <p id="rps">-</p>
+            </div>
+        </div>
+
+        <div class="charts">
+            <canvas id="requestChart" height="100"></canvas>
+            <canvas id="cpuChart" height="100"></canvas>
+            <canvas id="memoryChart" height="100"></canvas>
+            <canvas id="heapChart" height="100"></canvas>
+        </div>
+
+        <div class="refresh">
+            <button onclick="loadHealth()">Refresh Now</button>
+        </div>
+
+        <footer>
+            Docker + Nginx + Node + Redis Monitoring
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const maxPoints = 30;
+        const labels = Array.from({ length: maxPoints }, (_, i) => i - maxPoints + 1);
+
+        function createChart(ctx, label, color) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label,
+                        data: Array(maxPoints).fill(0),
+                        borderColor: color,
+                        backgroundColor: color + "33",
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        const cpuChart = createChart(
+            document.getElementById('cpuChart').getContext('2d'),
+            'CPU Load',
+            '#ffeb3b'
+        );
+
+        const memoryChart = createChart(
+            document.getElementById('memoryChart').getContext('2d'),
+            'Free Memory MB',
+            '#00ff9d'
+        );
+
+        const heapChart = createChart(
+            document.getElementById('heapChart').getContext('2d'),
+            'Heap Used MB',
+            '#ff416c'
+        );
+
+        const requestChart = createChart(
+            document.getElementById('requestChart').getContext('2d'),
+            'Requests (Last 5s)',
+            '#00bfff'
+        );
+
+        async function loadHealth() {
+            const statusEl = document.getElementById("status");
+
+            try {
+                const start = performance.now();
+                const res = await fetch("/health");
+                const data = await res.json();
+                const end = performance.now();
+
+                statusEl.innerText = `✅ Server is Healthy | Response Time: ${(end - start).toFixed(2)} ms`;
+                statusEl.className = "status ok";
+
+                document.getElementById("uptime").innerText = data.uptime;
+                document.getElementById("timestamp").innerText = new Date(data.timestamp).toLocaleString();
+                document.getElementById("platform").innerText = data.system.platform;
+                document.getElementById("cpu").innerText = data.system.cpuCores;
+                document.getElementById("heap").innerText = data.memory.heapUsed;
+                document.getElementById("memory").innerText = data.system.freeMemoryMB + " MB";
+                document.getElementById("rps").innerText = data.requestsLast5Seconds + " requests";
+
+                addData(cpuChart, parseFloat(data.system.cpuLoad[0].toFixed(2)));
+                addData(memoryChart, parseFloat(data.system.freeMemoryMB));
+                addData(heapChart, parseFloat(data.memory.heapUsed.replace(" MB", "")));
+                addData(requestChart, data.requestsLast5Seconds);
+
+            } catch (err) {
+                statusEl.innerText = "❌ Server Unreachable";
+                statusEl.className = "status error";
+            }
+        }
+
+        function addData(chart, value) {
+            chart.data.datasets[0].data.push(value);
+            chart.data.datasets[0].data.shift();
+            chart.update('none');
+        }
+
+        setInterval(loadHealth, 3000);
+        loadHealth();
+    </script>
+
 </body>
 
 </html>
