@@ -9,9 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/v1", requestTracker, routes);
+app.use("/api/v1", logger, requestTracker, routes);
 
-app.use(express.static("public")); // ✅ correct way
+app.use(express.static("public")); // ✅ Live View chart For Check
 
 app.use(requestTracker);
 
