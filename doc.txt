@@ -19,3 +19,14 @@
 // $ docker compose up --scale app=5 --build
 // $ docker compose ps
 // $ docker compose logs
+
+
+
+
+
+
+
+
+//server test how many can load 
+
+autocannon -d 3 http://localhost
