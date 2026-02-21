@@ -3,6 +3,7 @@ import routes from "./src/routes/index.js";
 import os from "os";
 import logger from "./src/utils/logers.js";
 import requestTracker, { requestTimestamps } from "./src/middleware/trackrequests.js";
+import errorHandler from "./src/middleware/errorHandler.js";
 
 const app = express();
 
@@ -43,5 +44,7 @@ app.get("/health", logger, async (req, res) => {
         }
     });
 });
+
+app.use(errorHandler); // last middleware
 
 export default app;
