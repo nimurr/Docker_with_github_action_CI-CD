@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectDB from "./src/config/db.js";
 import config from "./src/config/config.js";
 
+
 dotenv.config();
 connectDB();
 

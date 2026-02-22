@@ -4,6 +4,7 @@ import os from "os";
 import logger from "./src/utils/logers.js";
 import requestTracker, { requestTimestamps } from "./src/middleware/trackrequests.js";
 import errorHandler from "./src/middleware/errorHandler.js";
+import path from "path";
 
 const app = express();
 
@@ -13,6 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", logger, requestTracker, routes);
 
 app.use(express.static("public")); // ✅ Live View chart For Check Server Health
+
+app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads")));
 
 app.use(requestTracker);
 
