@@ -4,7 +4,7 @@ import fs from "fs";
 
 // Ensure upload folder exists
 const createFolder = (folderName) => {
-    const uploadPath = `/uploads/${folderName}`;
+    const uploadPath = `/public/uploads/${folderName}`;
     if (!fs.existsSync(uploadPath)) {
         fs.mkdirSync(uploadPath, { recursive: true });
     }

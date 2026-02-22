@@ -90,15 +90,20 @@ const verifyEmail = async ({ email, otp }) => {
     await user.save();
     // Optionally, delete used OTP
     await otpModel.deleteMany({ userId: user._id, purpose: "email_verification" });
-    throw new AppError("Email verified successfully. You can now log in.", 200);
-
+    return {
+        statusCode: 200,
+        message: "Email verified successfully. You can now log in.",
+    };
 }
 const resendOTP = async ({ email }) => {
     const user = await User.findOne({ email });
     if (!user) throw new AppError("User not found", 404);
     if (user.isVerified) throw new AppError("Email already verified", 400);
     await sendVerificationOTP(user._id);
-    throw new AppError("OTP resent successfully. Please check your email.", 200);
+    return {
+        statusCode: 200,
+        message: "OTP resent successfully. Please check your email.",
+    };
 }
 
 const authService = {
