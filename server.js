@@ -15,7 +15,7 @@ app.use("/api/v1", logger, requestTracker, routes);
 
 app.use(express.static("public")); // ✅ Live View chart For Check Server Health
 
-app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(requestTracker);
 

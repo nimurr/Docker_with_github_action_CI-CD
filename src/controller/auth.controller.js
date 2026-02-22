@@ -5,7 +5,8 @@ const register = catchAsync(async (req, res) => {
   const userData = req.body;
 
   if (req.file) {
-    userData.profileImage = req.file.path;
+    const imagePath = `/uploads/profiles/${req.file.filename}`;
+    userData.profileImage = imagePath;
   }
 
   const result = await authService.register(userData);
