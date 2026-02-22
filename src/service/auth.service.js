@@ -4,43 +4,48 @@ import { sendVerificationOTP } from "./otp.service.js";
 import AppError from "../utils/appError.js";
 import otpModel from "../models/otp.model.js";
 
-
 const register = async (data) => {
-    const { email, password, fullName, role } = data;
+    const { email, password, fullName, role, profileImage } = data;
 
-    // 1️⃣ Check if user already exists
+    // 1️⃣ Check if user exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
         if (existingUser.isVerified) {
-            // Already verified → cannot register again
             throw new AppError("Email already in use. Please login.", 400);
         } else {
-            // Exists but not verified → resend OTP
             await sendVerificationOTP(existingUser._id);
 
-            // ✅ Return here to prevent creating a duplicate user
-            throw new AppError("Email already registered but not verified. OTP resent to your email.", 400);
+            return {
+                statusCode: 200,
+                message:
+                    "Email already registered but not verified. OTP resent to your email.",
+                user: existingUser,
+            };
         }
     }
 
     // 2️⃣ Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // 3️⃣ Create new user
+    // 3️⃣ Create user
     const newUser = await User.create({
         fullName,
         email,
         password: hashedPassword,
         role,
+        profileImage,
     });
 
     // 4️⃣ Send OTP
     await sendVerificationOTP(newUser._id);
 
-    return newUser;
+    return {
+        statusCode: 201,
+        message: "User registered successfully. OTP sent to your email.",
+        user: newUser,
+    };
 };
-
 
 const login = async ({ email, password }) => {
     // 1️⃣ Find user

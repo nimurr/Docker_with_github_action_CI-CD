@@ -55,6 +55,10 @@ const userSchema = new mongoose.Schema(
         lastLogin: {
             type: Date,
         },
+        profileImage: {
+            type: String,
+            default: null,
+        },
         // Vendor specific data (optional)
         vendorProfile: {
             shopName: String,

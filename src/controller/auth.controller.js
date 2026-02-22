@@ -3,13 +3,18 @@ import authService from "../service/auth.service.js";
 import response from "../utils/response.js";
 
 const register = catchAsync(async (req, res) => {
-  const result = await authService.register(req.body);
+  const userData = req.body;
 
-  response({
-    statusCode: 201,
-    status: "success",
-    message: "User registered successfully. OTP sent to your email.",
-    data: result,
+  if (req.file) {
+    userData.profileImage = req.file.path;
+  }
+
+  const result = await authService.register(userData);
+
+  res.status(result.statusCode).json({
+    success: true,
+    message: result.message,
+    // data: result.user,
   });
 });
 
