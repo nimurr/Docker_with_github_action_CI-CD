@@ -29,4 +29,4 @@
 
 //server test how many can load 
 
-autocannon -d 3 http://localhost
+autocannon -d 3 http://10.10.11.74:3000/
