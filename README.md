@@ -112,7 +112,7 @@ Server will run on `http://localhost:3000`
 
 1. **Build and start all services**
 ```bash
-docker-compose up -d --build
+**docker-compose up -d --build**
 ```
 
 2. **Seed the database**
@@ -187,11 +187,11 @@ docker-compose logs -f
 
 After running the seed script:
 
-| Role | Email | Password |
-|------|-------|----------|
-| Master Admin | admin@platform.com | Admin123!@# |
+| Role           | Email                 | Password       |
+| -------------- | --------------------- | -------------- |
+| Master Admin   | admin@platform.com    | Admin123!@#    |
 | Merchant Admin | owner@techgadgets.com | Merchant123!@# |
-| Merchant Admin | owner@fashionhub.com | Merchant123!@# |
+| Merchant Admin | owner@fashionhub.com  | Merchant123!@# |
 
 ## 📡 API Endpoints
 
@@ -279,11 +279,11 @@ Then access stores at:
 
 ## 📦 Subscription Plans
 
-| Plan | Price/Month | Products | Storage | Features |
-|------|-------------|----------|---------|----------|
-| Basic | $29 | 100 | 1GB | Basic analytics, Email support |
-| Pro | $79 | 1,000 | 10GB | Advanced analytics, Priority support |
-| Enterprise | $299 | 10,000 | 100GB | Custom analytics, 24/7 support |
+| Plan       | Price/Month | Products | Storage | Features                             |
+| ---------- | ----------- | -------- | ------- | ------------------------------------ |
+| Basic      | $29         | 100      | 1GB     | Basic analytics, Email support       |
+| Pro        | $79         | 1,000    | 10GB    | Advanced analytics, Priority support |
+| Enterprise | $299        | 10,000   | 100GB   | Custom analytics, 24/7 support       |
 
 ## 🔒 Security Features
 
