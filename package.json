@@ -1,15 +1,35 @@
 {
-  "name": "dokerwithcicd",
+  "name": "multi-tenant-saas-platform",
   "version": "1.0.0",
-  "description": "",
+  "description": "Multi-tenant SaaS e-commerce platform with domain-based tenant isolation",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "dev": "nodemon index.js",
+    "prod": "node index.js",
+    "seed": "node src/scripts/seed.js",
+    "test": "echo \"No tests yet\" && exit 0",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:seed": "docker-compose exec app npm run seed"
   },
-  "keywords": [],
+  "keywords": [
+    "multi-tenant",
+    "saas",
+    "ecommerce",
+    "shopify",
+    "nodejs",
+    "express",
+    "mongodb",
+    "docker"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
@@ -25,5 +45,9 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
   }
 }

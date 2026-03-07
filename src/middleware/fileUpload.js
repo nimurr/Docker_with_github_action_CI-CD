@@ -29,7 +29,7 @@ const storage = (folderName) =>
 
 // File filter (images only — you can modify)
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|webp|pdf/;
+    const allowedTypes = /jpeg|jpg|png|webp|gif|pdf/;
     const extName = allowedTypes.test(
         path.extname(file.originalname).toLowerCase()
     );
@@ -42,14 +42,21 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
+// Create multer instance with default config
+const upload = multer({
+    storage: storage("products"),
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    fileFilter,
+});
+
 // Main upload middleware factory
 const fileUpload = ({
     fieldName = "file",
     maxCount = 1,
-    folderName = "default",
-    fileSize = 5 * 1024 * 1024, // 5MB
+    folderName = "products",
+    fileSize = 10 * 1024 * 1024, // 10MB
 } = {}) => {
-    const upload = multer({
+    const customUpload = multer({
         storage: storage(folderName),
         limits: { fileSize },
         fileFilter,
@@ -57,11 +64,15 @@ const fileUpload = ({
 
     // If multiple files
     if (maxCount > 1) {
-        return upload.array(fieldName, maxCount);
+        return customUpload.array(fieldName, maxCount);
     }
 
     // Single file
-    return upload.single(fieldName);
+    return customUpload.single(fieldName);
 };
+
+// Export both the factory function and the default upload instance
+fileUpload.array = (fieldName, maxCount) => upload.array(fieldName, maxCount);
+fileUpload.single = (fieldName) => upload.single(fieldName);
 
 export default fileUpload;

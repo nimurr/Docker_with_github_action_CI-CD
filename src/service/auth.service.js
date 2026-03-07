@@ -1,11 +1,13 @@
 import User from "../models/user.model.js";
-import bcrypt from "bcryptjs"; // assuming you hash passwords
+import bcrypt from "bcryptjs";
 import { sendVerificationOTP } from "./otp.service.js";
 import AppError from "../utils/appError.js";
 import otpModel from "../models/otp.model.js";
+import jwt from "jsonwebtoken";
+import config from "../config/config.js";
 
 const register = async (data) => {
-    const { email, password, fullName, role, profileImage } = data;
+    const { email, password, fullName, role, profileImage, merchantId } = data;
 
     // 1️⃣ Check if user exists
     const existingUser = await User.findOne({ email });
@@ -33,8 +35,9 @@ const register = async (data) => {
         fullName,
         email,
         password: hashedPassword,
-        role,
+        role: role || "customer",
         profileImage,
+        merchantId: merchantId || null,
     });
 
     // 4️⃣ Send OTP
@@ -95,6 +98,7 @@ const verifyEmail = async ({ email, otp }) => {
         message: "Email verified successfully. You can now log in.",
     };
 }
+
 const resendOTP = async ({ email }) => {
     const user = await User.findOne({ email });
     if (!user) throw new AppError("User not found", 404);
@@ -106,11 +110,61 @@ const resendOTP = async ({ email }) => {
     };
 }
 
+/**
+ * Register a new master admin (first user)
+ */
+const registerMasterAdmin = async (data) => {
+    const { email, password, fullName } = data;
+
+    // Check if any master admin exists
+    const existingAdmin = await User.findOne({ role: "master_admin" });
+    if (existingAdmin) {
+        throw new AppError("Master admin already exists.", 400);
+    }
+
+    // Check if email exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        throw new AppError("Email already in use.", 400);
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create master admin
+    const admin = await User.create({
+        fullName,
+        email,
+        password: hashedPassword,
+        role: "master_admin",
+        isVerified: true,
+    });
+
+    return {
+        statusCode: 201,
+        message: "Master admin created successfully.",
+        admin,
+    };
+};
+
+/**
+ * Generate JWT token
+ */
+const generateToken = (user) => {
+    return jwt.sign(
+        { id: user._id, role: user.role, merchantId: user.merchantId },
+        config.jwt.secret,
+        { expiresIn: config.jwt.access_expiration_minutes * 60 }
+    );
+};
+
 const authService = {
     register,
     login,
     verifyEmail,
-    resendOTP
+    resendOTP,
+    registerMasterAdmin,
+    generateToken,
 };
 
 export default authService;

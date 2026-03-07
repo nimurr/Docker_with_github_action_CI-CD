@@ -11,11 +11,12 @@ const config = {
 
   // JWT configuration
   jwt: {
-    secret: process.env.JWT_SECRET,
+    secret: process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production",
     access_expiration_minutes: parseInt(process.env.JWT_ACCESS_EXPIRATION_MINUTES, 10) || 60,
     refresh_expiration_days: parseInt(process.env.JWT_REFRESH_EXPIRATION_DAYS, 10) || 30,
     reset_password_expiration_minutes: parseInt(process.env.JWT_RESET_PASSWORD_EXPIRATION_MINUTES, 10) || 10,
     verify_email_expiration_minutes: parseInt(process.env.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES, 10) || 10,
+    access_secret: process.env.JWT_SECRET || "your-super-secret-jwt-key-change-in-production", // Alias for compatibility
   },
 
   // Email / SMTP configuration
@@ -35,6 +36,10 @@ const config = {
 
   // Redis configuration
   redisUrl: process.env.REDIS_URL || "redis://127.0.0.1:6379",
+  redis: {
+    host: process.env.REDIS_HOST || "127.0.0.1",
+    port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+  },
 
   // Cloudinary config (if needed later)
   cloudinary: {

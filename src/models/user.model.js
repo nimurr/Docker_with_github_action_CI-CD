@@ -25,15 +25,22 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String,
             required: true,
-            select: false, // never return password by default
+            select: false,
         },
 
         role: {
             type: String,
             enum: Object.values(USER_ROLE),
-            default: USER_ROLE.USER,
+            default: USER_ROLE.CUSTOMER,
         },
 
+        // Multi-tenant: Link to merchant (null for master admin)
+        merchantId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Merchant",
+            default: null,
+            index: true,
+        },
 
         avatar: {
             type: String,
@@ -49,52 +56,61 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
-        isDeleted: {
-            type: Boolean,
-            default: false,
-        },
 
         lastLogin: {
             type: Date,
         },
-        profileImage: {
-            type: String,
-            default: null,
+
+        // Merchant admin specific fields
+        merchantProfile: {
+            designation: String,
+            permissions: {
+                canManageProducts: { type: Boolean, default: true },
+                canManageOrders: { type: Boolean, default: true },
+                canManageCustomers: { type: Boolean, default: true },
+                canManageSettings: { type: Boolean, default: true },
+                canViewAnalytics: { type: Boolean, default: true },
+            },
         },
-        // Vendor specific data (optional)
-        vendorProfile: {
-            shopName: String,
-            shopLogo: String,
-            shopDescription: String,
-            commissionRate: {
+
+        // Customer specific fields
+        customerProfile: {
+            addresses: [
+                {
+                    label: {
+                        type: String,
+                        enum: ["home", "work", "other"],
+                        default: "home",
+                    },
+                    fullName: String,
+                    phone: String,
+                    street: String,
+                    city: String,
+                    state: String,
+                    postalCode: String,
+                    country: String,
+                    isDefault: {
+                        type: Boolean,
+                        default: false,
+                    },
+                },
+            ],
+            orderCount: {
                 type: Number,
                 default: 0,
             },
-            isApproved: {
-                type: Boolean,
-                default: false,
-            }
-        },
-
-        // Address (for customers)
-        addresses: [
-            {
-                fullName: String,
-                phone: String,
-                division: String,
-                district: String,
-                area: String,
-                postalCode: String,
-                addressLine: String,
-                isDefault: {
-                    type: Boolean,
-                    default: false,
-                },
+            totalSpent: {
+                type: Number,
+                default: 0,
             },
-        ],
+        },
     },
     { timestamps: true }
 );
+
+// Indexes for efficient querying
+userSchema.index({ email: 1, role: 1 });
+userSchema.index({ merchantId: 1, role: 1 });
 
 const User = mongoose.model("User", userSchema);
 

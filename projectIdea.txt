@@ -1,0 +1,416 @@
+📦 Project Plan: Multi-Tenant SaaS E-commerce Platform (Shopify-like)
+1️⃣ Project Overview
+
+Build a multi-tenant SaaS e-commerce platform where multiple merchants can create and manage their own online stores.
+
+The platform should support:
+
+A Master Admin who controls the entire system.
+
+Multiple Merchant Admins who manage their own stores.
+
+Each merchant has a separate domain.
+
+The system uses one server and one database.
+
+Data isolation must ensure that each merchant only sees their own data.
+
+The platform must support monthly subscription plans for merchants.
+
+This architecture follows the Multi-Tenant (Shared Database) model used by platforms like Shopify, WooCommerce, and BigCommerce.
+
+2️⃣ Core Architecture
+Infrastructure
+
+1 Application Server
+
+1 Shared Database
+
+Multiple domains
+
+Tenant isolation using merchantId
+
+Every data record must include:
+
+merchantId / tenantId
+
+This ensures proper separation of store data.
+
+3️⃣ Roles and Permissions
+👑 Master Admin
+
+Controls the entire platform.
+
+Permissions:
+
+Manage merchants
+
+Create subscription plans
+
+View platform analytics
+
+Suspend / activate stores
+
+Monitor server health
+
+View all products and orders
+
+Track platform revenue
+
+🏪 Merchant Admin
+
+Controls their own store.
+
+Permissions:
+
+Add / edit / delete products
+
+Manage orders
+
+Manage customers
+
+Manage store settings
+
+Upload product images
+
+View store analytics
+
+Merchant admins must never access another merchant’s data.
+
+👤 Customer
+
+Permissions:
+
+Browse store products
+
+Add products to cart
+
+Place orders
+
+Manage account
+
+Customers interact only with the merchant’s storefront.
+
+4️⃣ Domain-Based Store Detection
+
+Each merchant store has its own domain.
+
+Example:
+
+merchant1.com
+merchant2.com
+merchant3.com
+
+When a request arrives at the server:
+
+Detect the domain from the request header
+
+domain = req.headers.host
+
+Find the merchant linked to that domain.
+
+Use that merchant’s merchantId to filter all data queries.
+
+Example logic:
+
+User visits domain1.com
+
+Server detects domain
+      ↓
+Find merchant with domain1.com
+      ↓
+merchantId = m1
+      ↓
+Fetch products where merchantId = m1
+      ↓
+Return products
+5️⃣ Database Structure
+Merchants Collection
+
+Stores merchant store information.
+
+Fields:
+
+_id
+storeName
+domain
+subscriptionPlanId
+subscriptionStatus
+subscriptionExpireDate
+isActive
+createdAt
+Users Collection
+
+Stores system users.
+
+Fields:
+
+_id
+name
+email
+password
+role (master_admin, merchant_admin, customer)
+merchantId
+createdAt
+
+Master admin will have:
+
+merchantId = null
+Products Collection
+
+Each product must belong to a merchant.
+
+Fields:
+
+_id
+merchantId
+name
+description
+price
+stock
+images
+createdAt
+
+This ensures product separation between merchants.
+
+Orders Collection
+
+Fields:
+
+_id
+merchantId
+customerId
+products
+totalAmount
+orderStatus
+paymentStatus
+createdAt
+
+Orders must always be linked to a merchant.
+
+Subscription Plans Collection
+
+Fields:
+
+_id
+name
+price
+productLimit
+storageLimit
+features
+
+Example plans:
+
+Basic
+Pro
+Enterprise
+6️⃣ Subscription System
+
+Merchants must subscribe to use the platform.
+
+Features:
+
+Monthly subscription plans
+
+Automatic store deactivation if subscription expires
+
+Upgrade / downgrade plan
+
+Daily background job should:
+
+Check merchant subscription expiry.
+
+If expired → disable store.
+
+Example logic:
+
+if subscriptionExpireDate < today
+    store.isActive = false
+
+If the store is inactive, the storefront should show:
+
+"Store subscription expired"
+7️⃣ Product Management
+
+When a merchant adds a product:
+
+The system must automatically attach the merchantId.
+
+Example product data:
+
+{
+name: "iPhone 15",
+price: 1000,
+merchantId: "m1"
+}
+
+When retrieving products:
+
+fetch products where merchantId = currentMerchant
+
+Never allow queries without merchant filtering.
+
+8️⃣ Authentication System
+
+Use JWT authentication.
+
+JWT payload example:
+
+{
+userId
+role
+merchantId
+}
+
+This allows the system to:
+
+Identify user role
+
+Identify merchant ownership
+
+Protect routes
+
+9️⃣ Admin Dashboard
+
+Master admin dashboard must display:
+
+Total merchants
+
+Active stores
+
+Monthly revenue
+
+Subscription status
+
+Platform analytics
+
+Server health
+
+🔟 Server Health Monitoring
+
+System should track:
+
+CPU usage
+
+Memory usage
+
+API response time
+
+Server uptime
+
+Monitoring tools that can be used:
+
+PM2
+
+Grafana
+
+Prometheus
+
+These allow the master admin to monitor the system.
+
+11️⃣ Technology Stack
+
+Recommended stack:
+
+Frontend
+
+React
+Tailwind CSS
+
+Backend
+
+Node.js
+Express.js
+
+Database
+
+MongoDB
+
+Authentication
+
+JWT
+
+Deployment
+
+Docker
+Nginx
+12️⃣ Development Phases
+Phase 1 – Core System
+
+Authentication
+
+Merchant system
+
+Domain detection
+
+Product CRUD
+
+Tenant isolation
+
+Phase 2 – Storefront
+
+Public product pages
+
+Cart system
+
+Checkout
+
+Orders
+
+Phase 3 – Subscription
+
+Subscription plans
+
+Payment integration
+
+Store activation / deactivation
+
+Phase 4 – Admin Dashboard
+
+Merchant management
+
+Revenue tracking
+
+Platform analytics
+
+Server health monitoring
+
+13️⃣ Scaling Strategy
+
+Initial stage:
+
+1 Server
+1 Database
+
+Future scaling:
+
+Load balancer
+Redis caching
+CDN
+Separate database servers
+Microservices
+✅ Final Goal
+
+Create a scalable SaaS multi-tenant e-commerce platform where:
+
+Each merchant has a separate store
+
+All stores run on one infrastructure
+
+Data is isolated using merchantId
+
+Master admin controls the entire platform
+
+Merchants pay monthly subscriptions
+
+The system can scale to hundreds or thousands of stores.
+
+✅ You can copy this entire plan and give it to another AI to generate:
+
+full backend code
+
+database schema
+
+API structure
+
+deployment architecture.
