@@ -1,5 +1,7 @@
 import catchAsync from "../middleware/catchAsync.js";
 import authService from "../service/auth.service.js";
+import jwt from "jsonwebtoken";
+import config from "../config/config.js";
 
 const register = catchAsync(async (req, res) => {
   const userData = req.body;
@@ -23,10 +25,29 @@ const login = catchAsync(async (req, res) => {
     const { email, password } = req.body;
     const user = await authService.login({ email, password });
 
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, role: user.role, merchantId: user.merchantId },
+      config.jwt.secret,
+      { expiresIn: config.jwt.access_expiration_minutes * 60 }
+    );
+
     res.status(200).json({
       success: true,
       message: "Login successful",
-      data: user,
+      data: {
+        token,
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+          merchantId: user.merchantId,
+          isVerified: user.isVerified,
+          merchantProfile: user.merchantProfile,
+          customerProfile: user.customerProfile,
+        },
+      },
     });
   } catch (error) {
     res.status(401).json({

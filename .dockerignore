@@ -1,0 +1,86 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Testing
+coverage
+.nyc_output
+jest-results
+
+# Build outputs
+dist
+build
+
+# Docker
+docker-compose.override.yml
+.docker
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+circle.yml
+Jenkinsfile
+
+# Test files
+test
+tests
+*.test.js
+*.spec.js
+__tests__
+
+# Temporary files
+tmp
+temp
+.cache
+
+# Uploads (will be mounted as volume)
+uploads/*
+!uploads/.gitkeep
+
+# Public files (will be mounted as volume)
+public/*
+!public/.gitkeep
+
+# SSL certificates (should be mounted as volume)
+nginx/ssl
+
+# Database data (should be mounted as volume)
+data
+mongo-data
+redis-data
