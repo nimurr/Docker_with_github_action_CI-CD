@@ -6,7 +6,9 @@ import AppError from "../utils/appError.js";
 
 // Configure Nodemailer (Gmail example)
 const transporter = nodemailer.createTransport({
-  service: "Gmail",
+  host: config.email.smtp_host,
+  port: config.email.smtp_port,
+  secure: false, // true for 465, false for other ports (587)
   auth: {
     user: config.email.smtp_username, // your email
     pass: config.email.smtp_password, // your email password or app password
@@ -33,9 +35,15 @@ export const sendVerificationOTP = async (userId) => {
     expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
   });
 
+  // Skip email in development - just log OTP to console
+  if (config.env === "dev" || process.env.ENABLE_EMAIL_VERIFICATION === "false") {
+    console.log(`[DEV MODE] OTP for ${user.email}: ${otp}`);
+    return true;
+  }
+
   try {
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: `"Your Company" <${config.email.email_from}>`,
       to: user.email,
       subject: "Verify your email",
       html: `
@@ -46,14 +54,14 @@ export const sendVerificationOTP = async (userId) => {
       <div style="padding: 30px; text-align: center;">
         <p style="font-size: 16px; color: #333;">Hello <strong>${user.fullName}</strong>,</p>
         <p style="font-size: 16px; color: #333;">Use the OTP below to verify your email address. This OTP will expire in 10 minutes.</p>
-        
+
         <div style="margin: 20px 0;">
           <span style="display: inline-block; font-size: 24px; letter-spacing: 4px; background-color: #f0f0f0; padding: 15px 25px; border-radius: 6px; font-weight: bold;">${otp}</span>
         </div>
-  
+
         <p style="font-size: 14px; color: #666;">If you did not request this, please ignore this email.</p>
-        
-        <a href="http://${config.backend_ip}/api/v1/auth/login" 
+
+        <a href="http://${config.backend_ip}/api/v1/auth/login"
            style="display: inline-block; margin-top: 20px; padding: 12px 30px; background-color: #4caf50; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
            Go to Login
         </a>
@@ -64,10 +72,9 @@ export const sendVerificationOTP = async (userId) => {
     </div>
   `,
     });
-    throw new AppError("OTP email sent successfully", 200);
-    console.log("OTP email sent to:", user.email);
+    console.log("OTP email sent successfully to:", user.email);
   } catch (err) {
-    console.error("Failed to send OTP email:", err);
+    console.error("Failed to send OTP email:", err.message);
     // DO NOT throw — just log and allow the API to continue
   }
 

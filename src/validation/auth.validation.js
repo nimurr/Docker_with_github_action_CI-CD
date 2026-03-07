@@ -4,7 +4,7 @@ const register = joi.object({
     fullName: joi.string().required(),
     email: joi.string().required(),
     password: joi.string().required(),
-    role: joi.string().valid("user", "vendor", "admin", "manager", "super_admin").default("user"),
+    role: joi.string().valid("customer", "merchant_admin", "master_admin").default("user"),
 });
 
 const login = joi.object({
