@@ -35,6 +35,12 @@ export const sendVerificationOTP = async (userId) => {
     expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
   });
 
+  // Skip email in development - just log OTP to console
+  if (config.env === "dev" || process.env.ENABLE_EMAIL_VERIFICATION === "false") {
+    console.log(`[DEV MODE] OTP for ${user.email}: ${otp}`);
+    return true;
+  }
+
   try {
     await transporter.sendMail({
       from: `"Your Company" <${config.email.email_from}>`,
