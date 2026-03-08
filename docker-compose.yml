@@ -11,6 +11,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - CLUSTER_WORKERS=2
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
@@ -28,11 +29,11 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
           cpus: '1.0'
           memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
 
   nginx:
     image: nginx:alpine
@@ -52,28 +53,38 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 256M
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
 
   redis:
-    image: redis:alpine
+    image: redis:7-alpine
     container_name: redis-cache
     restart: unless-stopped
     expose:
       - "6379"
     volumes:
       - redis-data:/data
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --tcp-keepalive 300
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 5
     networks:
       - app-network
     deploy:
       resources:
         limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
           cpus: '0.5'
           memory: 256M
 
@@ -90,15 +101,18 @@ services:
       - MONGO_INITDB_DATABASE=multi-tenant-saas
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 30s
+      interval: 15s
       timeout: 10s
       retries: 5
-      start_period: 40s
+      start_period: 30s
     networks:
       - app-network
     deploy:
       resources:
         limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
           cpus: '1.0'
           memory: 1G
 
