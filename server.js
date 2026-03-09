@@ -8,46 +8,57 @@ import path from "path";
 
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Disable Express header for security (small performance gain)
+app.disable("x-powered-by");
 
+// Fast JSON parsing
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Apply tracking ONLY to API routes (not static/health)
 app.use("/api/v1", logger, requestTracker, routes);
 
-app.use(express.static("public")); // ✅ Live View chart For Check Server Health
+app.use(express.static("public", {
+  maxAge: "1d",
+  etag: false,
+  lastModified: false
+}));
 
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads"), {
+  maxAge: "1d",
+  etag: false,
+  lastModified: false
+}));
 
-app.use(requestTracker);
-
-app.get("/health", logger, async (req, res) => {
-    const uptime = process.uptime();
-    const memoryUsage = process.memoryUsage();
-    const cpuLoad = os.loadavg();
-    const totalMemory = os.totalmem();
-    const freeMemory = os.freemem();
-
-    const requestsLast5Sec = requestTimestamps.length;
-
-    res.status(200).json({
-        status: "OK",
-        requestsLast5Seconds: requestsLast5Sec,   // 👈 ADD THIS
-        uptime: `${Math.floor(uptime)} seconds`,
-        timestamp: new Date(),
-        system: {
-            platform: process.platform,
-            cpuCores: os.cpus().length,
-            cpuLoad: cpuLoad,
-            totalMemoryMB: (totalMemory / 1024 / 1024).toFixed(2),
-            freeMemoryMB: (freeMemory / 1024 / 1024).toFixed(2),
-        },
-        memory: {
-            rss: (memoryUsage.rss / 1024 / 1024).toFixed(2) + " MB",
-            heapUsed: (memoryUsage.heapUsed / 1024 / 1024).toFixed(2) + " MB",
-            heapTotal: (memoryUsage.heapTotal / 1024 / 1024).toFixed(2) + " MB",
-        }
-    });
+// Lightweight health check - NO middleware overhead
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    pid: process.pid,
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
 });
 
-app.use(errorHandler); // last middleware
+// Readiness check for load balancer
+app.get("/ready", (req, res) => {
+  res.status(200).json({ status: "ready", pid: process.pid });
+});
+
+// Ping endpoint for load testing
+app.get("/ping", (req, res) => {
+  res.status(200).send("pong");
+});
+
+// API performance test endpoint (no DB, no logging)
+app.get("/api/perf-test", (req, res) => {
+  res.status(200).json({ 
+    ok: true, 
+    pid: process.pid,
+    timestamp: Date.now()
+  });
+});
+
+app.use(errorHandler);
 
 export default app;
