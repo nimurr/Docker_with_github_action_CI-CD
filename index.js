@@ -11,6 +11,7 @@ if (cluster.isPrimary) {
   console.log(`Primary ${process.pid} started`);
   console.log(`Spawning ${numCPUs} workers for high-performance mode`);
   console.log(`Environment: ${config.env}`);
+
   
   // Fork workers
   const workers = [];
@@ -44,3 +45,4 @@ if (cluster.isPrimary) {
     process.exit(1);
   });
 }
+
