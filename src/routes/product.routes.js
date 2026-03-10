@@ -7,13 +7,16 @@ import fileUpload from "../middleware/fileUpload.js";
 const router = express.Router();
 
 // Public routes (storefront) - require tenant detection
-router.get("/published", detectTenant, productController.getPublishedProducts);
-router.get("/published/:id", detectTenant, productController.getPublishedProduct);
-router.get("/categories", detectTenant, productController.getProductCategories);
+router.get("/published", productController.getPublishedProducts);
+router.get("/published/:id", productController.getPublishedProduct);
+// router.get("/categories", productController.getProductCategories);
 
 // Protected routes - require authentication and tenant detection
 router.use(auth("merchant_admin"));
 router.use(detectTenant);
+
+router.post("/categories", fileUpload.array("images", 10), productController.createProductCategory);
+router.get("/categories-all", productController.getProductAllCategories);
 
 router.post(
     "/",

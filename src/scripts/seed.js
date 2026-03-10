@@ -129,7 +129,7 @@ const seedDatabase = async () => {
             const merchants = await Merchant.insertMany([
                 {
                     storeName: "Tech Gadgets Store",
-                    domain: "techgadgets.localhost",
+                    domain: "localhost",
                     merchantEmail: "owner@techgadgets.com",
                     merchantPhone: "+1234567890",
                     subscriptionPlanId: basicPlan._id,

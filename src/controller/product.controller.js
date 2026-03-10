@@ -2,6 +2,7 @@ import Product from "../models/product.model.js";
 import Merchant from "../models/merchant.model.js";
 import catchAsync from "../middleware/catchAsync.js";
 import AppError from "../utils/appError.js";
+import ProductCategory from "../models/category.model.js";
 
 /**
  * Create a new product (Merchant Admin)
@@ -20,7 +21,7 @@ const createProduct = catchAsync(async (req, res) => {
 
     const SubscriptionPlan = (await import("../models/subscriptionPlan.model.js")).default;
     const plan = await SubscriptionPlan.findById(merchant.subscriptionPlanId);
-    
+
     const currentProductCount = await Product.countDocuments({ merchantId: req.merchantId });
     if (currentProductCount >= plan.productLimit) {
         throw new AppError(`Product limit reached. Your plan allows ${plan.productLimit} products.`, 400);
@@ -51,13 +52,13 @@ const createProduct = catchAsync(async (req, res) => {
  * Get all products for the merchant (with filters)
  */
 const getProducts = catchAsync(async (req, res) => {
-    const { 
-        page = 1, 
-        limit = 20, 
-        search, 
-        category, 
-        minPrice, 
-        maxPrice, 
+    const {
+        page = 1,
+        limit = 20,
+        search,
+        category,
+        minPrice,
+        maxPrice,
         status,
         sortBy = "createdAt",
         order = "desc"
@@ -116,19 +117,18 @@ const getProducts = catchAsync(async (req, res) => {
  * Get published products (for storefront - public)
  */
 const getPublishedProducts = catchAsync(async (req, res) => {
-    const { 
-        page = 1, 
-        limit = 20, 
-        search, 
-        category, 
-        minPrice, 
+    const {
+        page = 1,
+        limit = 20,
+        search,
+        category,
+        minPrice,
         maxPrice,
         sortBy = "createdAt",
         order = "desc"
     } = req.query;
 
     const query = {
-        merchantId: req.merchantId,
         isPublished: true,
         isActive: true,
     };
@@ -175,9 +175,9 @@ const getPublishedProducts = catchAsync(async (req, res) => {
 const getProductById = catchAsync(async (req, res) => {
     const { id } = req.params;
 
-    const product = await Product.findOne({ 
-        _id: id, 
-        merchantId: req.merchantId 
+    const product = await Product.findOne({
+        _id: id,
+        merchantId: req.merchantId
     });
 
     if (!product) {
@@ -200,8 +200,8 @@ const getProductById = catchAsync(async (req, res) => {
 const getPublishedProduct = catchAsync(async (req, res) => {
     const { id } = req.params;
 
-    const product = await Product.findOne({ 
-        _id: id, 
+    const product = await Product.findOne({
+        _id: id,
         merchantId: req.merchantId,
         isPublished: true,
         isActive: true
@@ -264,9 +264,9 @@ const updateProduct = catchAsync(async (req, res) => {
 const deleteProduct = catchAsync(async (req, res) => {
     const { id } = req.params;
 
-    const product = await Product.findOneAndDelete({ 
-        _id: id, 
-        merchantId: req.merchantId 
+    const product = await Product.findOneAndDelete({
+        _id: id,
+        merchantId: req.merchantId
     });
 
     if (!product) {
@@ -297,7 +297,7 @@ const bulkUpdateProducts = catchAsync(async (req, res) => {
     }
 
     let updateData = {};
-    
+
     switch (action) {
         case "publish":
             updateData = { isPublished: true, isActive: true };
@@ -312,18 +312,18 @@ const bulkUpdateProducts = catchAsync(async (req, res) => {
             updateData = { isActive: false };
             break;
         case "delete":
-            await Product.deleteMany({ 
-                _id: { $in: productIds }, 
-                merchantId: req.merchantId 
+            await Product.deleteMany({
+                _id: { $in: productIds },
+                merchantId: req.merchantId
             });
-            
+
             // Update merchant product count
             const merchant = await Merchant.findById(req.merchantId);
             if (merchant) {
                 merchant.productCount = Math.max(0, merchant.productCount - productIds.length);
                 await merchant.save();
             }
-            
+
             return res.status(200).json({
                 success: true,
                 message: `${productIds.length} products deleted successfully`,
@@ -350,9 +350,9 @@ const updateProductStock = catchAsync(async (req, res) => {
     const { id } = req.params;
     const { stock, operation } = req.body;
 
-    const product = await Product.findOne({ 
-        _id: id, 
-        merchantId: req.merchantId 
+    const product = await Product.findOne({
+        _id: id,
+        merchantId: req.merchantId
     });
 
     if (!product) {
@@ -380,8 +380,8 @@ const updateProductStock = catchAsync(async (req, res) => {
  * Get product categories (for the merchant)
  */
 const getProductCategories = catchAsync(async (req, res) => {
-    const categories = await Product.distinct("category", { 
-        merchantId: req.merchantId,
+    const categories = await Product.distinct("category", {
+        // merchantId: req.merchantId,
         isPublished: true,
         isActive: true
     });
@@ -389,6 +389,56 @@ const getProductCategories = catchAsync(async (req, res) => {
     res.status(200).json({
         success: true,
         data: { categories },
+    });
+});
+
+const createProductCategory = catchAsync(async (req, res) => {
+
+    const { name } = req.body;
+
+    const productData = {
+        ...req.body,
+    };
+
+    if (!name) {
+        throw new AppError("Please provide a name.", 400);
+    }
+
+    // image upload check
+    if (!req.files || req.files.length === 0) {
+        throw new AppError("Please provide an image.", 400);
+    }
+
+    const existingCategory = await ProductCategory.findOne({ name });
+
+    if (existingCategory) {
+        throw new AppError("Category already exists.", 400);
+    }
+
+    // image upload
+    if (req.files && req.files.length > 0) {
+        productData.images = req.files.map(
+            file => `/uploads/products/${file.filename}`
+        );
+    }
+
+    const category = await ProductCategory.create(productData);
+    console.log(category)
+
+    res.status(200).json({
+        success: true,
+        message: "Category created successfully",
+        data: { category },
+    });
+
+});
+
+const getProductAllCategories = catchAsync(async (req, res) => {
+    const categories = await ProductCategory.find();
+
+    res.status(200).json({
+        success: true,
+        data: categories,
     });
 });
 
@@ -403,6 +453,8 @@ const productController = {
     bulkUpdateProducts,
     updateProductStock,
     getProductCategories,
+    createProductCategory,
+    getProductAllCategories
 };
 
 export default productController;

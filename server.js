@@ -5,8 +5,12 @@ import logger from "./src/utils/logers.js";
 import requestTracker, { requestTimestamps } from "./src/middleware/trackrequests.js";
 import errorHandler from "./src/middleware/errorHandler.js";
 import path from "path";
+import connectDB from "./src/config/db.js";
 
 const app = express();
+
+// Connect to MongoDB
+connectDB();
 
 // Disable Express header for security (small performance gain)
 app.disable("x-powered-by");
