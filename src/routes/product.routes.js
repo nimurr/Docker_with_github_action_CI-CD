@@ -10,13 +10,13 @@ const router = express.Router();
 router.get("/published", productController.getPublishedProducts);
 router.get("/published/:id", productController.getPublishedProduct);
 // router.get("/categories", productController.getProductCategories);
+router.get("/categories-all", productController.getProductAllCategories);
 
 // Protected routes - require authentication and tenant detection
 router.use(auth("merchant_admin"));
 router.use(detectTenant);
 
 router.post("/categories", fileUpload.array("images", 10), productController.createProductCategory);
-router.get("/categories-all", productController.getProductAllCategories);
 
 router.post(
     "/",
