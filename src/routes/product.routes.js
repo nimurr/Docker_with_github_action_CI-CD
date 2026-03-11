@@ -7,8 +7,11 @@ import fileUpload from "../middleware/fileUpload.js";
 const router = express.Router();
 
 // Public routes (storefront) - require tenant detection
+// IMPORTANT: Specific routes MUST come before :id routes
 router.get("/published", productController.getPublishedProducts);
-router.get("/published/:id", productController.getPublishedProduct);
+router.get("/published/best-products", productController.getBestSellingProducts);
+router.get("/published/details/:id", productController.getPublishedProduct);
+
 // router.get("/categories", productController.getProductCategories);
 router.get("/categories-all", productController.getProductAllCategories);
 

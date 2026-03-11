@@ -169,6 +169,21 @@ const getPublishedProducts = catchAsync(async (req, res) => {
     });
 });
 
+
+const getBestSellingProducts = catchAsync(async (req, res) => {
+
+    const products = await Product.find({
+        isPublished: true,
+        isActive: true,
+        // reviewsCount: { $gt: 4 }
+    }).sort({ salesCount: -1 }).limit(6);
+
+    res.status(200).json({
+        success: true,
+        data: { products },
+    });
+});
+
 /**
  * Get single product by ID
  */
@@ -446,6 +461,7 @@ const productController = {
     createProduct,
     getProducts,
     getPublishedProducts,
+    getBestSellingProducts,
     getProductById,
     getPublishedProduct,
     updateProduct,
