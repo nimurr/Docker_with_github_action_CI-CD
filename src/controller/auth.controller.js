@@ -6,10 +6,10 @@ import config from "../config/config.js";
 const register = catchAsync(async (req, res) => {
   const userData = req.body;
 
-  if (req.file) {
-    const imagePath = `/uploads/profiles/${req.file.filename}`;
-    userData.profileImage = imagePath;
-  }
+  // if (req.file) {
+  //   const imagePath = `/uploads/profiles/${req.file.filename}`;
+  //   userData.profileImage = imagePath;
+  // }
 
   const result = await authService.register(userData);
 

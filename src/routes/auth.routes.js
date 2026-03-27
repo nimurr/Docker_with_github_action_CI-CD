@@ -11,11 +11,11 @@ const router = express.Router();
 router.post(
     "/register",
     // auth(USER_ROLE.ADMIN), // No role restriction for registration
-    fileUpload({
-        fieldName: "profileImage",
-        folderName: "profiles",
-        maxCount: 1,
-    }),
+    // fileUpload({
+    //     fieldName: "profileImage",
+    //     folderName: "profiles",
+    //     maxCount: 1,
+    // }),
     validate(authValidation.register),
     authController.register
 );

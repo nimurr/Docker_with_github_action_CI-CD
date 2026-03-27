@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 
 const register = async (data) => {
-    const { email, password, fullName, role, profileImage, merchantId } = data;
+    const { email, password, fullName, role,  merchantId } = data;
 
     // 1️⃣ Check if user exists
     const existingUser = await User.findOne({ email });
@@ -36,7 +36,6 @@ const register = async (data) => {
         email,
         password: hashedPassword,
         role: role || "customer",
-        profileImage,
         merchantId: merchantId || null,
     });
 
@@ -60,12 +59,12 @@ const login = async ({ email, password }) => {
     if (!isMatch) throw new Error("Invalid email or password");
 
     // 3️⃣ Check if email is verified
-    if (!user.isVerified) {
-        // Optionally, re-send OTP if user not verified
-        await sendVerificationOTP(user._id);
-        throw new AppError("Email not verified. OTP sent to your email.", 400);
-    }
-    if (user.isDeleted) throw new AppError("Account is deleted. Contact support.", 403);
+    // if (!user.isVerified) {
+    //     // Optionally, re-send OTP if user not verified
+    //     await sendVerificationOTP(user._id);
+    //     throw new AppError("Email not verified. OTP sent to your email.", 400);
+    // }
+    // if (user.isDeleted) throw new AppError("Account is deleted. Contact support.", 403);
 
     if (user.isBlocked) throw new AppError("Account is blocked. Contact support.", 403);
 
