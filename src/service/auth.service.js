@@ -58,14 +58,6 @@ const login = async ({ email, password }) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error("Invalid email or password");
 
-    // 3️⃣ Check if email is verified
-    // if (!user.isVerified) {
-    //     // Optionally, re-send OTP if user not verified
-    //     await sendVerificationOTP(user._id);
-    //     throw new AppError("Email not verified. OTP sent to your email.", 400);
-    // }
-    // if (user.isDeleted) throw new AppError("Account is deleted. Contact support.", 403);
-
     if (user.isBlocked) throw new AppError("Account is blocked. Contact support.", 403);
 
     // 4️⃣ Return user (omit password)
